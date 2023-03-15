@@ -1,4 +1,4 @@
-module github.com/conduitio/conduit-connector-connectorname
+module github.com/meroxa/conduit-connector-spire-ais
 
 go 1.19
 

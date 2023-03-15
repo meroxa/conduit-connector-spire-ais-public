@@ -3,9 +3,9 @@ package main
 import (
 	sdk "github.com/conduitio/conduit-connector-sdk"
 
-	connectorname "github.com/conduitio/conduit-connector-connectorname"
+	ais "github.com/meroxa/conduit-connector-spire-ais"
 )
 
 func main() {
-	sdk.Serve(connectorname.Connector)
+	sdk.Serve(ais.Connector)
 }

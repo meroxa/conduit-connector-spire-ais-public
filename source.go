@@ -1,4 +1,4 @@
-package connectorname
+package ais
 
 //go:generate paramgen -output=paramgen_src.go SourceConfig
 
