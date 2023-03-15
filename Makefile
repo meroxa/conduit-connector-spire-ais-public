@@ -2,8 +2,6 @@
 
 VERSION=$(shell git describe --tags --dirty --always)
 
-VERSION=$(shell git describe --tags --dirty --always)
-
 build:
 	go build -ldflags "-X 'github.com/meroxa/conduit-connector-spire-ais.version=${VERSION}'" -o conduit-connector-spire-ais cmd/connector/main.go
 
