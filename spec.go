@@ -12,9 +12,9 @@ var version = "(devel)"
 func Specification() sdk.Specification {
 	return sdk.Specification{
 		Name:        "spire-ais",
-		Summary:     "<describe your connector>",
-		Description: "<describe your connector in detail>",
+		Summary:     "A source connector for getting data from the spire-ais GraphQL API",
+		Description: "This connector should connect to the Spire-AIS GraphQL API using a Bearer Token.  It should allow sending a query to the API to fetch new data",
 		Version:     version,
-		Author:      "<your name>",
+		Author:      "Meroxa, Inc.",
 	}
 }
