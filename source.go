@@ -5,22 +5,16 @@ package ais
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	sdk "github.com/conduitio/conduit-connector-sdk"
+	"github.com/machinebox/graphql"
 )
 
 type Source struct {
 	sdk.UnimplementedSource
 
-	config           SourceConfig
-	lastPositionRead sdk.Position //nolint:unused // this is just an example
-}
-
-type SourceConfig struct {
-	// Config includes parameters that are the same in the source and destination.
-	Config
-	// SourceConfigParam is named foo and must be provided by the user.
-	SourceConfigParam string `json:"foo" validate:"required"`
+	config Config
 }
 
 func NewSource() sdk.Source {
@@ -31,7 +25,23 @@ func NewSource() sdk.Source {
 func (s *Source) Parameters() map[string]sdk.Parameter {
 	// Parameters is a map of named Parameters that describe how to configure
 	// the Source. Parameters can be generated from SourceConfig with paramgen.
-	return s.config.Parameters()
+	return map[string]sdk.Parameter{
+		"apiUrl": {
+			Type:        sdk.ParameterTypeString,
+			Default:     "",
+			Description: "Url to the Spire AIS GraphQL endpoint",
+		},
+		"token": {
+			Type:        sdk.ParameterTypeString,
+			Default:     "",
+			Description: "Authentication token for the Spire AIS GraphQL endpoint",
+		},
+		"query": {
+			Type:        sdk.ParameterTypeString,
+			Default:     "",
+			Description: "GraphQL query string",
+		},
+	}
 }
 
 func (s *Source) Configure(ctx context.Context, cfg map[string]string) error {
@@ -59,7 +69,19 @@ func (s *Source) Open(ctx context.Context, pos sdk.Position) error {
 	// last record that was successfully processed, Source should therefore
 	// start producing records after this position. The context passed to Open
 	// will be cancelled once the plugin receives a stop signal from Conduit.
-	return nil
+
+	// Create new GraphQL client using URL from config
+	graphqlClient := graphql.NewClient(s.config.apiUrl)
+	graphqlRequest := graphql.NewRequest(s.config.query)
+	// set header fields
+	graphqlRequest.Header.Set("Authorization", "Bearer %s")
+	err := s.initPosition(pos)
+	if err != nil {
+		return fmt.Errorf("failed initializing position: %w", err)
+	}
+	return err
+
+	return graphqlClient
 }
 
 func (s *Source) Read(ctx context.Context) (sdk.Record, error) {
@@ -94,5 +116,39 @@ func (s *Source) Teardown(ctx context.Context) error {
 	// Teardown signals to the plugin that there will be no more calls to any
 	// other function. After Teardown returns, the plugin should be ready for a
 	// graceful shutdown.
+	return nil
+}
+
+func (s *Source) validateConfig(cfg map[string]string) error {
+	apiUrl, ok := cfg["apiUrl"]
+	if !ok {
+		return requiredConfigErr("apiUrl")
+	}
+
+	_, err := cfg["token"]
+	if err {
+		return requiredConfigErr("token")
+	}
+
+	_, queryErr := cfg["query"]
+	if queryErr {
+		return requiredConfigErr("query")
+	}
+
+	// Check if url is valid
+	_, validURLErr = url.ParseRequestURI(apiUrl)
+	if validURLErr {
+		return fmt.Errorf("%q is not a valid URL", apiUrl)
+	}
+
+	// // make sure we can stat the file, we don't care if it doesn't exist though
+	// _, err := os.Stat(path)
+	// if err != nil && !os.IsNotExist(err) {
+	// 	return fmt.Errorf(
+	// 		"%q config value %q does not contain a valid path: %w",
+	// 		ConfigPath, path, err,
+	// 	)
+	// }
+
 	return nil
 }
