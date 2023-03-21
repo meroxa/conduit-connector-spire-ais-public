@@ -71,7 +71,7 @@ func (s *Source) Open(ctx context.Context, pos sdk.Position) error {
 
 	// Create new GraphQL client using URL from config
 	c := graphql.NewClient(s.config.APIURL)
-	it, err := NewIterator(c, s.config.Query, pos)
+	it, err := NewIterator(c, s.config.Token, s.config.Query, pos)
 	s.iterator = it
 
 	return err
@@ -100,15 +100,16 @@ func (s *Source) Read(ctx context.Context) (sdk.Record, error) {
 	// -- If not set, sleep.
 	// - If Report, emit Report, increment position
 
-	graphqlRequest := graphql.NewRequest(s.config.Query)
-	// set header fields
-	graphqlRequest.Header.Set("Authorization", "Bearer %s")
-	err := s.initPosition(pos)
-	if err != nil {
-		return fmt.Errorf("failed initializing position: %w", err)
+	// no more records, backoff
+	if !s.iterator.HasNext(ctx) {
+		return sdk.Record{}, sdk.ErrBackoffRetry
 	}
-	return err
-	return sdk.Record{}, nil
+
+	record, err := s.iterator.Next(ctx)
+	if err != nil {
+		return sdk.Record{}, fmt.Errorf("error reading next record: %w", err)
+	}
+	return record, nil
 }
 
 func (s *Source) Ack(ctx context.Context, position sdk.Position) error {

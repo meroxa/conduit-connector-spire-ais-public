@@ -1,5 +1,7 @@
 package ais
 
+import sdk "github.com/conduitio/conduit-connector-sdk"
+
 type Vessels struct {
 	PageInfo PageInfo `json:"pageInfo"`
 	Nodes    []Node   `json:"nodes"`
@@ -13,9 +15,19 @@ type PageInfo struct {
 type Node struct {
 	ID                 string             `json:"id"`
 	UpdateTimestamp    string             `json:"updateTimestamp"`
-	StaticData         StaticData         `json:"statidData"`
+	StaticData         StaticData         `json:"staticData"`
 	LastPositionUpdate LastPositionUpdate `json:"lastPositionUpdate"`
 	CurrentVoyage      CurrentVoyage      `json:"currentVoyage"`
+}
+
+func (n Node) toStructuredData() sdk.StructuredData {
+	return sdk.StructuredData{
+		"id":                 n.ID,
+		"updateTimestamp":    n.UpdateTimestamp,
+		"staticData":         n.StaticData,
+		"lastPositionUpdate": n.LastPositionUpdate,
+		"currentVoyage":      n.CurrentVoyage,
+	}
 }
 
 type StaticData struct {
