@@ -8,11 +8,11 @@ import (
 // destination. If you don't need shared parameters you can entirely remove this
 // file.
 type Config struct {
-	// GlobalConfigParam is named global_config_param_name and needs to be
-	// provided by the user.
-	apiUrl string
-	token  string
-	query  string
+	// APIURL is the Spire API URL to use for accessing the Spire GraphQL API.
+	APIURL string `json:"api_url" validate:"required" default:"https://api.spire.com/graphql"`
+
+	// Token is the access token to use when accessing the Spire GraphQL API.
+	Token string `json:"token" validate:"required"`
 }
 
 func requiredConfigErr(name string) error {
