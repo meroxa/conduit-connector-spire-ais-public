@@ -93,13 +93,6 @@ func (s *Source) Read(ctx context.Context) (sdk.Record, error) {
 	// the error is ErrBackoffRetry, as mentioned above).
 	// Read can be called concurrently with Ack.
 
-	// todo:
-	// - Get the next `VesselReport` from the Source
-	// - If none left, check `cursor`.
-	// -- If set, get next batch. Update cursor
-	// -- If not set, sleep.
-	// - If Report, emit Report, increment position
-
 	// no more records, backoff
 	if !s.iterator.HasNext(ctx) {
 		return sdk.Record{}, sdk.ErrBackoffRetry
