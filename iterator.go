@@ -10,17 +10,26 @@ import (
 	"github.com/machinebox/graphql"
 )
 
+type GraphQLClient interface {
+	Run(ctx context.Context, req *graphql.Request, resp interface{}) error
+}
+
+type IteratorInterface interface {
+	HasNext(ctx context.Context) bool
+	Next(ctx context.Context) (sdk.Record, error)
+}
+
 type Iterator struct {
 	token        string
 	query        string
 	cursor       string
 	currentBatch []Node
-	client       *graphql.Client
+	client       GraphQLClient
 	position     sdk.Position
 	hasNext      bool
 }
 
-func NewIterator(client *graphql.Client, token string, query string, p sdk.Position) (*Iterator, error) {
+func NewIterator(client GraphQLClient, token string, query string, p sdk.Position) (*Iterator, error) {
 	return &Iterator{
 		token:    token,
 		query:    query,
@@ -29,6 +38,9 @@ func NewIterator(client *graphql.Client, token string, query string, p sdk.Posit
 	}, nil
 
 }
+
+// Ensure Iterator implements IteratorInterface
+var _ IteratorInterface = (*Iterator)(nil)
 
 func (it *Iterator) HasNext(ctx context.Context) bool {
 	// return early if there are more nodes
@@ -54,7 +66,7 @@ func (it *Iterator) Next(ctx context.Context) (sdk.Record, error) {
 	} else {
 		err := it.loadBatch(ctx)
 		if err != nil {
-			sdk.Logger(ctx).Info().Msgf("loadBatch returned error %w", err)
+			sdk.Logger(ctx).Err(err).Msg("loadBatch returned error")
 			return sdk.Record{}, err
 		}
 		out, it.currentBatch = it.currentBatch[0], it.currentBatch[1:]
@@ -93,7 +105,7 @@ func wrapAsRecord(in Node, endCursor sdk.Position) (sdk.Record, error) {
 	sdk.Logger(context.Background()).Info().Msgf("record: %+v", in)
 	updateTimestamp, err := time.Parse(time.RFC3339, in.UpdateTimestamp)
 	if err != nil {
-		sdk.Logger(context.Background()).Info().Msgf("timestamp: %s; error %w", in.UpdateTimestamp, err)
+		sdk.Logger(context.Background()).Err(err).Msg("%w")
 		return sdk.Record{}, err
 	}
 
