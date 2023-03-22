@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	// ais "path/to/your/ais" // Replace with the import path to your package with the code to test
 )
 
 type MockIteratorCreator struct {
@@ -21,16 +20,6 @@ func (m *MockIteratorCreator) NewIterator(client GraphQLClient, token string, qu
 	args := m.Called(client, token, query, p)
 	return args.Get(0).(*Iterator), args.Error(1)
 }
-
-// func (m *MockIterator) HasNext(ctx context.Context) bool {
-// 	args := m.Called(ctx)
-// 	return args.Bool(0)
-// }
-
-// func (m *MockIterator) Next(ctx context.Context) (sdk.Record, error) {
-// 	args := m.Called(ctx)
-// 	return args.Get(0).(sdk.Record), args.Error(1)
-// }
 
 func TestSource(t *testing.T) {
 	t.Run("Parameters", func(t *testing.T) {
