@@ -10,11 +10,16 @@ import (
 	"github.com/machinebox/graphql"
 )
 
+type IteratorCreator interface {
+	NewIterator(client GraphQLClient, token string, query string, p sdk.Position) (*Iterator, error)
+}
+
 type Source struct {
 	sdk.UnimplementedSource
 
-	config   SourceConfig
-	iterator *Iterator
+	config          SourceConfig
+	iterator        *Iterator
+	iteratorCreator IteratorCreator
 }
 
 type SourceConfig struct {
@@ -71,7 +76,7 @@ func (s *Source) Open(ctx context.Context, pos sdk.Position) error {
 
 	// Create new GraphQL client using URL from config
 	c := graphql.NewClient(s.config.APIURL)
-	it, err := NewIterator(c, s.config.Token, s.config.Query, pos)
+	it, err := s.iteratorCreator.NewIterator(c, s.config.Token, s.config.Query, pos)
 	s.iterator = it
 
 	return err
