@@ -1,0 +1,19 @@
+version: 1.1
+
+pipelines:
+  test:
+    status: running
+    name: test
+    description: test pipeline
+    connectors:
+      src:
+        type: source
+        plugin: standalone:spire-ais@c88fff9-dirty
+        name: src
+        settings:
+          token: ${AIS_TOKEN}
+      dest:
+        type: destination
+        plugin: builtin:file
+        settings:
+          path: ./out.txt

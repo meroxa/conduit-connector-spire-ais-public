@@ -13,9 +13,7 @@ func (SourceConfig) Parameters() map[string]sdk.Parameter {
 			Default:     "https://api.spire.com/graphql",
 			Description: "api_url is the Spire API URL to use for accessing the Spire GraphQL API.",
 			Type:        sdk.ParameterTypeString,
-			Validations: []sdk.Validation{
-				sdk.ValidationRequired{},
-			},
+			Validations: []sdk.Validation{},
 		},
 		"batch_size": {
 			Default:     "100",

@@ -93,8 +93,11 @@ func (s *Source) Read(ctx context.Context) (sdk.Record, error) {
 	// the error is ErrBackoffRetry, as mentioned above).
 	// Read can be called concurrently with Ack.
 
+	sdk.Logger(ctx).Info().Msg("read called")
+
 	// no more records, backoff
-	if !s.iterator.HasNext(ctx) {
+	if !s.iterator.HasNext(ctx) && s.iterator.position != nil {
+		sdk.Logger(ctx).Info().Msg("hasNext false")
 		return sdk.Record{}, sdk.ErrBackoffRetry
 	}
 
