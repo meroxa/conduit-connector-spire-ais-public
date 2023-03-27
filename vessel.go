@@ -1,7 +1,5 @@
 package ais
 
-import sdk "github.com/conduitio/conduit-connector-sdk"
-
 type Vessels struct {
 	PageInfo PageInfo `json:"pageInfo"`
 	Nodes    []Node   `json:"nodes"`
@@ -20,15 +18,16 @@ type Node struct {
 	CurrentVoyage      CurrentVoyage      `json:"currentVoyage"`
 }
 
-func (n Node) toStructuredData() sdk.StructuredData {
-	return sdk.StructuredData{
-		"id":                 n.ID,
-		"updateTimestamp":    n.UpdateTimestamp,
-		"staticData":         n.StaticData,
-		"lastPositionUpdate": n.LastPositionUpdate,
-		"currentVoyage":      n.CurrentVoyage,
-	}
-}
+// This is unused as we are not returning structured data. We are instead returning []byte.
+//func (n Node) toStructuredData() sdk.StructuredData {
+//	return sdk.StructuredData{
+//		"id":                 n.ID,
+//		"updateTimestamp":    n.UpdateTimestamp,
+//		"staticData":         n.StaticData,
+//		"lastPositionUpdate": n.LastPositionUpdate,
+//		"currentVoyage":      n.CurrentVoyage,
+//	}
+//}
 
 type StaticData struct {
 	AisClass        string     `json:"aisClass"`

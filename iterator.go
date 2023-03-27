@@ -36,7 +36,6 @@ func NewIterator(client GraphQLClient, token string, query string, p sdk.Positio
 		client:   client,
 		position: p,
 	}, nil
-
 }
 
 // Ensure Iterator implements IteratorInterface
@@ -49,7 +48,11 @@ func (it *Iterator) HasNext(ctx context.Context) bool {
 	}
 
 	if it.hasNext {
-		it.loadBatch(ctx)
+		err := it.loadBatch(ctx)
+		if err != nil {
+			sdk.Logger(ctx).Err(err)
+			return false
+		}
 		return true
 	}
 
