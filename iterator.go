@@ -73,7 +73,6 @@ func (it *Iterator) Next(ctx context.Context) (sdk.Record, error) {
 		out, it.currentBatch = it.currentBatch[0], it.currentBatch[1:]
 	}
 
-	sdk.Logger(ctx).Info().Msg("returning record")
 	return wrapAsRecord(out, it.position)
 }
 
@@ -87,7 +86,7 @@ func (it *Iterator) loadBatch(ctx context.Context) error {
 	if it.hasNext {
 		graphqlRequest.Var("after", it.cursor)
 	}
-	if err := it.client.Run(context.Background(), graphqlRequest, &Response); err != nil {
+	if err := it.client.Run(ctx, graphqlRequest, &Response); err != nil {
 		sdk.Logger(ctx).Err(err).Msgf("graphqlRequest: %+v", graphqlRequest)
 		return err
 	}
