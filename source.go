@@ -54,7 +54,7 @@ func (s *Source) Configure(ctx context.Context, cfg map[string]string) error {
 	// before calling Configure. If you need to do more complex validations you
 	// can do them manually here.
 
-	sdk.Logger(ctx).Info().Msg("Configuring Source...")
+	sdk.Logger(ctx).Debug().Msg("Configuring Source connector...")
 	err := sdk.Util.ParseConfig(cfg, &s.config)
 	if err != nil {
 		return fmt.Errorf("invalid config: %w", err)
@@ -74,6 +74,7 @@ func (s *Source) Open(ctx context.Context, pos sdk.Position) error {
 	// start producing records after this position. The context passed to Open
 	// will be cancelled once the plugin receives a stop signal from Conduit.
 
+	sdk.Logger(ctx).Debug().Msg("Opening Source connector...")
 	// Create new GraphQL client using URL from config
 	c := graphql.NewClient(s.config.APIURL)
 	it, err := s.iteratorCreator.NewIterator(c, s.config.Token, s.config.Query, pos)
@@ -98,11 +99,8 @@ func (s *Source) Read(ctx context.Context) (sdk.Record, error) {
 	// the error is ErrBackoffRetry, as mentioned above).
 	// Read can be called concurrently with Ack.
 
-	sdk.Logger(ctx).Info().Msg("read called")
-
 	// no more records, backoff
 	if !s.iterator.HasNext(ctx) && s.iterator.position != nil {
-		sdk.Logger(ctx).Info().Msg("hasNext false")
 		return sdk.Record{}, sdk.ErrBackoffRetry
 	}
 

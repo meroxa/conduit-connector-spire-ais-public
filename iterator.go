@@ -60,11 +60,9 @@ func (it *Iterator) HasNext(ctx context.Context) bool {
 }
 
 func (it *Iterator) Next(ctx context.Context) (sdk.Record, error) {
-	sdk.Logger(ctx).Info().Msg("in Next()")
 	// return next message from cached batch
 	var out Node
 	if len(it.currentBatch) > 0 {
-		sdk.Logger(ctx).Info().Msg("currentBatch not empty")
 		out, it.currentBatch = it.currentBatch[0], it.currentBatch[1:]
 	} else {
 		err := it.loadBatch(ctx)
@@ -80,7 +78,6 @@ func (it *Iterator) Next(ctx context.Context) (sdk.Record, error) {
 }
 
 func (it *Iterator) loadBatch(ctx context.Context) error {
-	sdk.Logger(ctx).Info().Msg("loadBatch called")
 	graphqlRequest := graphql.NewRequest(it.query)
 	graphqlRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %s", it.token))
 	graphqlRequest.Var("first", 100)
@@ -88,10 +85,8 @@ func (it *Iterator) loadBatch(ctx context.Context) error {
 		Vessels Vessels
 	}
 	if it.hasNext {
-		sdk.Logger(ctx).Info().Msg("hasNext is true")
 		graphqlRequest.Var("after", it.cursor)
 	}
-	sdk.Logger(ctx).Info().Msg("calling graphQL endpoint")
 	if err := it.client.Run(context.Background(), graphqlRequest, &Response); err != nil {
 		sdk.Logger(ctx).Err(err).Msgf("graphqlRequest: %+v", graphqlRequest)
 		return err
@@ -105,7 +100,7 @@ func (it *Iterator) loadBatch(ctx context.Context) error {
 }
 
 func wrapAsRecord(in Node, endCursor sdk.Position) (sdk.Record, error) {
-	sdk.Logger(context.Background()).Info().Msgf("record: %+v", in)
+	sdk.Logger(context.Background()).Debug().Msgf("record: %+v", in)
 	updateTimestamp, err := time.Parse(time.RFC3339, in.UpdateTimestamp)
 	if err != nil {
 		sdk.Logger(context.Background()).Err(err).Msg("%w")
