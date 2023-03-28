@@ -8,7 +8,7 @@ pipelines:
     connectors:
       src:
         type: source
-        plugin: standalone:spire-ais@c88fff9-dirty
+        plugin: standalone:spire-ais
         name: src
         settings:
           token: ${AIS_TOKEN}
