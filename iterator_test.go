@@ -21,9 +21,8 @@ import (
 
 	sdk "github.com/conduitio/conduit-connector-sdk"
 	"github.com/machinebox/graphql"
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 )
 
 type MockGraphQLClient struct {
@@ -37,6 +36,7 @@ func (m *MockGraphQLClient) Run(ctx context.Context, req *graphql.Request, resp 
 
 func TestIterator(t *testing.T) {
 	t.Run("NewIterator", func(t *testing.T) {
+		is := is.New(t)
 		client := &graphql.Client{}
 		token := "test-token"
 		query := "test-query"
@@ -44,21 +44,22 @@ func TestIterator(t *testing.T) {
 
 		it, err := NewIterator(client, token, query, position)
 
-		require.NoError(t, err)
-		assert.Equal(t, client, it.client)
-		assert.Equal(t, token, it.token)
-		assert.Equal(t, query, it.query)
-		assert.Equal(t, position, it.position)
+		is.NoErr(err)
+		is.Equal(client, it.client)
+		is.Equal(token, it.token)
+		is.Equal(query, it.query)
+		is.Equal(position, it.position)
 	})
 
 	t.Run("HasNext", func(t *testing.T) {
+		is := is.New(t)
 		client := &MockGraphQLClient{}
 		token := "test-token"
 		query := "test-query"
 		position := sdk.Position("test-position")
 
 		it, err := NewIterator(client, token, query, position)
-		require.NoError(t, err)
+		is.NoErr(err)
 
 		// Set up expected behavior
 		expectedResponse := struct {
@@ -78,26 +79,26 @@ func TestIterator(t *testing.T) {
 
 		// hasNext is true
 		it.hasNext = true
-		assert.True(t, it.HasNext(context.Background()))
+		is.Equal(true, it.HasNext(context.Background()))
 
 		// hasNext is false, but there are more nodes
 		it.hasNext = false
 		it.currentBatch = []Node{{}, {}}
-		assert.True(t, it.HasNext(context.Background()))
+		is.Equal(true, it.HasNext(context.Background()))
 
 		// hasNext is false, and no more nodes
 		it.currentBatch = []Node{}
-		assert.False(t, it.HasNext(context.Background()))
+		is.Equal(false, it.HasNext(context.Background()))
 	})
-
 	t.Run("Next", func(t *testing.T) {
+		is := is.New(t)
 		client := &MockGraphQLClient{}
 		token := "test-token"
 		query := "test-query"
 		position := sdk.Position("test-position")
 
 		it, err := NewIterator(client, token, query, position)
-		require.NoError(t, err)
+		is.NoErr(err)
 
 		it.currentBatch = []Node{
 			{
@@ -106,40 +107,42 @@ func TestIterator(t *testing.T) {
 		}
 
 		record, err := it.Next(context.Background())
-		require.NoError(t, err)
-		assert.NotNil(t, record)
+		is.NoErr(err)
+		is.True(record.Payload.After != nil)
 	})
 
 	t.Run("loadBatch", func(t *testing.T) {
+		is := is.New(t)
 		client := &MockGraphQLClient{}
 		token := "test-token"
 		query := "test-query"
 		position := sdk.Position("test-position")
 
 		it, err := NewIterator(client, token, query, position)
-		require.NoError(t, err)
+		is.NoErr(err)
 
 		client.On("Run", mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
 
 		err = it.loadBatch(context.Background())
-		require.NoError(t, err)
+		is.NoErr(err)
 
 		client.AssertExpectations(t)
 	})
 
 	t.Run("loadBatchError", func(t *testing.T) {
+		is := is.New(t)
 		client := &MockGraphQLClient{}
 		token := "test-token"
 		query := "test-query"
 		position := sdk.Position("test-position")
 
 		it, err := NewIterator(client, token, query, position)
-		require.NoError(t, err)
+		is.NoErr(err)
 
 		client.On("Run", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("graphql error")).Once()
 
 		err = it.loadBatch(context.Background())
-		require.Error(t, err)
+		is.Equal(errors.Unwrap(err), errors.New("graphql error"))
 
 		client.AssertExpectations(t)
 	})
