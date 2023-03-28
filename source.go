@@ -25,7 +25,7 @@ import (
 )
 
 type IteratorCreator interface {
-	NewIterator(client GraphQLClient, token string, query string, p sdk.Position) (*Iterator, error)
+	NewIterator(client GraphQLClient, token string, query string, batch_size int, p sdk.Position) (*Iterator, error)
 }
 
 type Source struct {
@@ -91,7 +91,7 @@ func (s *Source) Open(ctx context.Context, pos sdk.Position) error {
 	sdk.Logger(ctx).Debug().Msg("Opening Source connector...")
 	// Create new GraphQL client using URL from config
 	c := graphql.NewClient(s.config.APIURL)
-	it, err := s.iteratorCreator.NewIterator(c, s.config.Token, s.config.Query, pos)
+	it, err := s.iteratorCreator.NewIterator(c, s.config.Token, s.config.Query, s.config.BatchSize, pos)
 	s.iterator = it
 
 	return err

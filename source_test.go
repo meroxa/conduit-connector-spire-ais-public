@@ -29,7 +29,7 @@ type MockIteratorCreator struct {
 	Next    sdk.Record
 }
 
-func (m *MockIteratorCreator) NewIterator(client GraphQLClient, token string, query string, p sdk.Position) (*Iterator, error) {
+func (m *MockIteratorCreator) NewIterator(client GraphQLClient, token string, query string, batch_size int, p sdk.Position) (*Iterator, error) {
 	args := m.Called(client, token, query, p)
 	return args.Get(0).(*Iterator), args.Error(1)
 }
@@ -81,7 +81,7 @@ func TestSource(t *testing.T) {
 		// Mock the iterator to be used in the Open method
 		mockIterator := &Iterator{}
 		mockIteratorCreator := &MockIteratorCreator{}
-		mockIteratorCreator.On("NewIterator", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockIterator, nil).Once()
+		mockIteratorCreator.On("NewIterator", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockIterator, nil).Once()
 
 		source.(*Source).iteratorCreator = mockIteratorCreator
 
