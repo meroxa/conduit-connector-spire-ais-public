@@ -19,15 +19,14 @@ import (
 	"testing"
 
 	sdk "github.com/conduitio/conduit-connector-sdk"
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 )
 
 type MockIteratorCreator struct {
 	mock.Mock
 	HasNext bool
-	Next    (sdk.Record)
+	Next    sdk.Record
 }
 
 func (m *MockIteratorCreator) NewIterator(client GraphQLClient, token string, query string, p sdk.Position) (*Iterator, error) {
@@ -40,9 +39,12 @@ func TestSource(t *testing.T) {
 		source := NewSource()
 		params := source.Parameters()
 
-		assert.NotNil(t, params)
-		assert.Contains(t, params, "query")
-		assert.Contains(t, params, "batch_size")
+		is := is.New(t)
+		is.True(params != nil)
+		is.Equal(params["api_url"].Default, "https://api.spire.com/graphql")
+		is.Equal(params["query"].Default, "")
+		is.Equal(params["token"].Default, "")
+		is.Equal(params["batch_size"].Default, "100")
 	})
 
 	t.Run("Configure", func(t *testing.T) {
@@ -55,7 +57,12 @@ func TestSource(t *testing.T) {
 		}
 
 		err := source.Configure(context.Background(), cfg)
-		require.NoError(t, err)
+		is := is.New(t)
+		is.NoErr(err)
+		is.Equal(source.(*Source).config.APIURL, "https://api.example.com/graphql")
+		is.Equal(source.(*Source).config.Query, "test-query")
+		is.Equal(source.(*Source).config.Token, "test-token")
+		is.Equal(source.(*Source).config.BatchSize, 100)
 	})
 
 	t.Run("Open", func(t *testing.T) {
@@ -68,7 +75,8 @@ func TestSource(t *testing.T) {
 		}
 
 		err := source.Configure(context.Background(), cfg)
-		require.NoError(t, err)
+		is := is.New(t)
+		is.NoErr(err)
 
 		// Mock the iterator to be used in the Open method
 		mockIterator := &Iterator{}
@@ -78,8 +86,8 @@ func TestSource(t *testing.T) {
 		source.(*Source).iteratorCreator = mockIteratorCreator
 
 		err = source.Open(context.Background(), nil)
-		require.NoError(t, err)
-		assert.Equal(t, mockIterator, source.(*Source).iterator)
+		is.NoErr(err)
+		is.Equal(mockIterator, source.(*Source).iterator)
 
 		mockIteratorCreator.AssertExpectations(t)
 	})
@@ -88,13 +96,15 @@ func TestSource(t *testing.T) {
 		source := NewSource()
 
 		err := source.Ack(context.Background(), nil)
-		require.NoError(t, err)
+		is := is.New(t)
+		is.NoErr(err)
 	})
 
 	t.Run("Teardown", func(t *testing.T) {
 		source := NewSource()
 
 		err := source.Teardown(context.Background())
-		require.NoError(t, err)
+		is := is.New(t)
+		is.NoErr(err)
 	})
 }
