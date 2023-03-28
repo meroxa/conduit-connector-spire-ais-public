@@ -40,10 +40,10 @@ func TestIterator(t *testing.T) {
 		client := &graphql.Client{}
 		token := "test-token"
 		query := "test-query"
-		batch_size := 100
+		batchSize := 100
 		position := sdk.Position("test-position")
 
-		it, err := NewIterator(client, token, query, batch_size, position)
+		it, err := NewIterator(client, token, query, batchSize, position)
 
 		is.NoErr(err)
 		is.Equal(client, it.client)
@@ -57,10 +57,10 @@ func TestIterator(t *testing.T) {
 		client := &MockGraphQLClient{}
 		token := "test-token"
 		query := "test-query"
-		batch_size := 100
+		batchSize := 100
 		position := sdk.Position("test-position")
 
-		it, err := NewIterator(client, token, query, batch_size, position)
+		it, err := NewIterator(client, token, query, batchSize, position)
 		is.NoErr(err)
 
 		// Set up expected behavior
@@ -97,10 +97,10 @@ func TestIterator(t *testing.T) {
 		client := &MockGraphQLClient{}
 		token := "test-token"
 		query := "test-query"
-		batch_size := 100
+		batchSize := 100
 		position := sdk.Position("test-position")
 
-		it, err := NewIterator(client, token, query, batch_size, position)
+		it, err := NewIterator(client, token, query, batchSize, position)
 		is.NoErr(err)
 
 		it.currentBatch = []Node{
@@ -119,10 +119,10 @@ func TestIterator(t *testing.T) {
 		client := &MockGraphQLClient{}
 		token := "test-token"
 		query := "test-query"
-		batch_size := 100
+		batchSize := 100
 		position := sdk.Position("test-position")
 
-		it, err := NewIterator(client, token, query, batch_size, position)
+		it, err := NewIterator(client, token, query, batchSize, position)
 		is.NoErr(err)
 
 		client.On("Run", mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
@@ -138,10 +138,10 @@ func TestIterator(t *testing.T) {
 		client := &MockGraphQLClient{}
 		token := "test-token"
 		query := "test-query"
-		batch_size := 100
+		batchSize := 100
 		position := sdk.Position("test-position")
 
-		it, err := NewIterator(client, token, query, batch_size, position)
+		it, err := NewIterator(client, token, query, batchSize, position)
 		is.NoErr(err)
 
 		client.On("Run", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("graphql error")).Once()

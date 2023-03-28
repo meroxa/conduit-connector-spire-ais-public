@@ -36,7 +36,7 @@ type IteratorInterface interface {
 type Iterator struct {
 	token        string
 	query        string
-	batch_size   int
+	batchSize    int
 	cursor       string
 	currentBatch []Node
 	client       GraphQLClient
@@ -44,13 +44,13 @@ type Iterator struct {
 	hasNext      bool
 }
 
-func NewIterator(client GraphQLClient, token string, query string, batch_size int, p sdk.Position) (*Iterator, error) {
+func NewIterator(client GraphQLClient, token string, query string, batchSize int, p sdk.Position) (*Iterator, error) {
 	return &Iterator{
-		token:      token,
-		query:      query,
-		batch_size: batch_size,
-		client:     client,
-		position:   p,
+		token:     token,
+		query:     query,
+		batchSize: batchSize,
+		client:    client,
+		position:  p,
 	}, nil
 }
 
@@ -95,7 +95,7 @@ func (it *Iterator) Next(ctx context.Context) (sdk.Record, error) {
 func (it *Iterator) loadBatch(ctx context.Context) error {
 	graphqlRequest := graphql.NewRequest(it.query)
 	graphqlRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %s", it.token))
-	graphqlRequest.Var("first", it.batch_size)
+	graphqlRequest.Var("first", it.batchSize)
 	var Response struct {
 		Vessels Vessels
 	}
