@@ -68,7 +68,7 @@ func (it *Iterator) Next(ctx context.Context) (sdk.Record, error) {
 		err := it.loadBatch(ctx)
 		if err != nil {
 			sdk.Logger(ctx).Err(err).Msg("loadBatch returned error")
-			return sdk.Record{}, err
+			return sdk.Record{}, fmt.Errorf("loadBatch returned error: %w", err)
 		}
 		out, it.currentBatch = it.currentBatch[0], it.currentBatch[1:]
 	}
@@ -88,7 +88,7 @@ func (it *Iterator) loadBatch(ctx context.Context) error {
 	}
 	if err := it.client.Run(ctx, graphqlRequest, &Response); err != nil {
 		sdk.Logger(ctx).Err(err).Msgf("graphqlRequest: %+v", graphqlRequest)
-		return err
+		return fmt.Errorf("error making graphQL Request: %w", err)
 	}
 	it.currentBatch = Response.Vessels.Nodes
 	it.hasNext = Response.Vessels.PageInfo.HasNextPage
@@ -103,7 +103,7 @@ func wrapAsRecord(in Node, endCursor sdk.Position) (sdk.Record, error) {
 	updateTimestamp, err := time.Parse(time.RFC3339, in.UpdateTimestamp)
 	if err != nil {
 		sdk.Logger(context.Background()).Err(err).Msg("%w")
-		return sdk.Record{}, err
+		return sdk.Record{}, fmt.Errorf("error occurred while wrapping results as a Conduit Record: %w", err)
 	}
 
 	sdkMetadata := make(sdk.Metadata)
@@ -111,7 +111,7 @@ func wrapAsRecord(in Node, endCursor sdk.Position) (sdk.Record, error) {
 
 	b, err := json.Marshal(in)
 	if err != nil {
-		return sdk.Record{}, err
+		return sdk.Record{}, fmt.Errorf("error occurred marshalling JSON: %w", err)
 	}
 
 	return sdk.Util.Source.NewRecordCreate(endCursor, sdkMetadata, nil, sdk.RawData(b)), nil
