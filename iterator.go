@@ -24,24 +24,33 @@ import (
 	"github.com/machinebox/graphql"
 )
 
-type GraphQLClient interface {
-	Run(ctx context.Context, req *graphql.Request, resp interface{}) error
-}
-
 type IteratorInterface interface {
 	HasNext(ctx context.Context) bool
 	Next(ctx context.Context) (sdk.Record, error)
 }
 
+// Add Logger interface for dependency injection
+type Logger interface {
+	Err(err error) Logger
+	Msgf(format string, v ...interface{}) Logger
+}
+
+// Add GraphQLClient interface for dependency injection
+type GraphQLClient interface {
+	Run(ctx context.Context, req *graphql.Request, resp interface{}) error
+}
+
+// Updated Iterator struct with logger and client dependencies
 type Iterator struct {
-	token        string
 	query        string
+	token        string
 	batchSize    int
 	cursor       string
-	currentBatch []Node
-	client       GraphQLClient
-	position     sdk.Position
 	hasNext      bool
+	position     []byte
+	client       GraphQLClient
+	logger       Logger
+	currentBatch []Node
 }
 
 func NewIterator(client GraphQLClient, token string, query string, batchSize int, p sdk.Position) (*Iterator, error) {
@@ -92,6 +101,7 @@ func (it *Iterator) Next(ctx context.Context) (sdk.Record, error) {
 	return wrapAsRecord(out, it.position)
 }
 
+// Updated loadBatch function with dependency injection
 func (it *Iterator) loadBatch(ctx context.Context) error {
 	graphqlRequest := graphql.NewRequest(it.query)
 	graphqlRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %s", it.token))
@@ -99,13 +109,32 @@ func (it *Iterator) loadBatch(ctx context.Context) error {
 	var Response struct {
 		Vessels Vessels
 	}
+
+	lastSuccessfulCursor := it.cursor
+
 	if it.hasNext {
 		graphqlRequest.Var("after", it.cursor)
 	}
-	if err := it.client.Run(ctx, graphqlRequest, &Response); err != nil {
-		sdk.Logger(ctx).Err(err).Msgf("graphqlRequest: %+v", graphqlRequest)
-		return fmt.Errorf("error making graphQL Request: %w", err)
+
+	maxRetries := 3
+	retryDelay := time.Second * 2
+
+	for i := 0; i < maxRetries; i++ {
+		err := it.client.Run(ctx, graphqlRequest, &Response)
+		if err == nil {
+			break
+		}
+
+		if i < maxRetries-1 {
+			it.logger.Err(err).Msgf("graphqlRequest: %+v, retrying...", graphqlRequest)
+			time.Sleep(retryDelay)
+		} else {
+			it.logger.Err(err).Msgf("graphqlRequest: %+v", graphqlRequest)
+			it.cursor = lastSuccessfulCursor
+			return fmt.Errorf("error making graphQL Request: %w", err)
+		}
 	}
+
 	it.currentBatch = Response.Vessels.Nodes
 	it.hasNext = Response.Vessels.PageInfo.HasNextPage
 	it.cursor = Response.Vessels.PageInfo.EndCursor
