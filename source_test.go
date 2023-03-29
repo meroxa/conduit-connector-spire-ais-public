@@ -29,7 +29,7 @@ type MockIteratorCreator struct {
 	Next    sdk.Record
 }
 
-func (m *MockIteratorCreator) NewIterator(client GraphQLClient, token string, query string, batch_size int, p sdk.Position) (*Iterator, error) {
+func (m *MockIteratorCreator) NewIterator(client GraphQLClient, token string, query string, batchSize int, p sdk.Position) (*Iterator, error) {
 	args := m.Called(client, token, query, p)
 	return args.Get(0).(*Iterator), args.Error(1)
 }
