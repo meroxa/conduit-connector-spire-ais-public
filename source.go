@@ -38,9 +38,10 @@ func (ic SourceIteratorCreator) NewIterator(client GraphQLClient, token string, 
 type Source struct {
 	sdk.UnimplementedSource
 
-	config          SourceConfig
-	iterator        *Iterator
-	iteratorCreator IteratorCreator
+	config               SourceConfig
+	iterator             *Iterator
+	iteratorCreator      IteratorCreator
+	startQueryFromCursor bool
 }
 
 type SourceConfig struct {
@@ -103,6 +104,11 @@ func (s *Source) Open(ctx context.Context, pos sdk.Position) error {
 	it, err := s.iteratorCreator.NewIterator(c, s.config.Token, s.config.Query, s.config.BatchSize, pos)
 	s.iterator = it
 
+	// If there is a value in the Iterator's position during the Open function, then that means that the pipeline was running previously and likely errored out or shut down
+	// This sets a flag to start querying from the iterator's last successful cursor position
+	if s.iterator.position != nil {
+		s.startQueryFromCursor = true
+	}
 	return err
 }
 
@@ -123,7 +129,7 @@ func (s *Source) Read(ctx context.Context) (sdk.Record, error) {
 	// Read can be called concurrently with Ack.
 
 	// no more records, backoff
-	if !s.iterator.HasNext(ctx) && s.iterator.position != nil {
+	if !s.iterator.HasNext(ctx) && s.iterator.position != nil && !s.startQueryFromCursor {
 		return sdk.Record{}, sdk.ErrBackoffRetry
 	}
 
