@@ -28,6 +28,13 @@ type IteratorCreator interface {
 	NewIterator(client GraphQLClient, token string, query string, batchSize int, p sdk.Position) (*Iterator, error)
 }
 
+type SourceIteratorCreator struct {
+}
+
+func (ic SourceIteratorCreator) NewIterator(client GraphQLClient, token string, query string, batchSize int, p sdk.Position) (*Iterator, error) {
+	return NewIterator(client, token, query, batchSize, p)
+}
+
 type Source struct {
 	sdk.UnimplementedSource
 
@@ -44,7 +51,7 @@ type SourceConfig struct {
 	Query string `json:"query"`
 
 	// BatchSize is the quantity of vessels to retrieve per API call.
-	BatchSize int `json:"batchSize" validate:"required" default:"100"`
+	BatchSize int `json:"batch_size" validate:"required" default:"100"`
 }
 
 func NewSource() sdk.Source {
@@ -77,6 +84,8 @@ func (s *Source) Configure(ctx context.Context, cfg map[string]string) error {
 	if s.config.Query == "" {
 		s.config.Query = vesselQuery()
 	}
+
+	s.iteratorCreator = SourceIteratorCreator{}
 	return nil
 }
 

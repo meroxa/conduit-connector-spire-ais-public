@@ -29,7 +29,7 @@ type MockIteratorCreator struct {
 	Next    sdk.Record
 }
 
-func (m *MockIteratorCreator) NewIterator(client GraphQLClient, token string, query string, batchSize int, p sdk.Position) (*Iterator, error) {
+func (m *MockIteratorCreator) NewIterator(client GraphQLClient, token string, query string, batch_size int, p sdk.Position) (*Iterator, error) {
 	args := m.Called(client, token, query, p)
 	return args.Get(0).(*Iterator), args.Error(1)
 }
@@ -50,10 +50,10 @@ func TestSource(t *testing.T) {
 	t.Run("Configure", func(t *testing.T) {
 		source := NewSource()
 		cfg := map[string]string{
-			"api_url":   "https://api.example.com/graphql",
-			"token":     "test-token",
-			"query":     "test-query",
-			"batchSize": "100",
+			"api_url":    "https://api.example.com/graphql",
+			"token":      "test-token",
+			"query":      "test-query",
+			"batch_size": "100",
 		}
 
 		err := source.Configure(context.Background(), cfg)
@@ -68,10 +68,10 @@ func TestSource(t *testing.T) {
 	t.Run("Open", func(t *testing.T) {
 		source := NewSource()
 		cfg := map[string]string{
-			"api_url":   "https://api.example.com/graphql",
-			"token":     "test-token",
-			"query":     "test-query",
-			"batchSize": "100",
+			"api_url":    "https://api.example.com/graphql",
+			"token":      "test-token",
+			"query":      "test-query",
+			"batch_size": "100",
 		}
 
 		err := source.Configure(context.Background(), cfg)
