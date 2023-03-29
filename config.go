@@ -23,4 +23,7 @@ type Config struct {
 
 	// Token is the access token to use when accessing the Spire GraphQL API.
 	Token string `json:"token" validate:"required"`
+
+	// Token is the access token to use when accessing the Spire GraphQL API.
+	BatchSize string `json:"batch_size" validate:"required"`
 }
