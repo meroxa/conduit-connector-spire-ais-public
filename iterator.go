@@ -29,12 +29,6 @@ type IteratorInterface interface {
 	Next(ctx context.Context) (sdk.Record, error)
 }
 
-// Add Logger interface for dependency injection
-type Logger interface {
-	Err(err error) Logger
-	Msgf(format string, v ...interface{}) Logger
-}
-
 // Add GraphQLClient interface for dependency injection
 type GraphQLClient interface {
 	Run(ctx context.Context, req *graphql.Request, resp interface{}) error
@@ -49,7 +43,6 @@ type Iterator struct {
 	hasNext      bool
 	position     []byte
 	client       GraphQLClient
-	logger       Logger
 	currentBatch []Node
 }
 
@@ -126,10 +119,10 @@ func (it *Iterator) loadBatch(ctx context.Context) error {
 		}
 
 		if i < maxRetries-1 {
-			it.logger.Err(err).Msgf("graphqlRequest: %+v, retrying...", graphqlRequest)
+			sdk.Logger(context.Background()).Err(err).Msg("Retrying query...")
 			time.Sleep(retryDelay)
 		} else {
-			it.logger.Err(err).Msgf("graphqlRequest: %+v", graphqlRequest)
+			sdk.Logger(context.Background()).Err(err).Msg("%w")
 			it.cursor = lastSuccessfulCursor
 			return fmt.Errorf("error making graphQL Request: %w", err)
 		}

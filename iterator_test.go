@@ -37,16 +37,6 @@ type MockLogger struct {
 	mock.Mock
 }
 
-func (m *MockLogger) Msgf(format string, args ...interface{}) Logger {
-	m.Called(args...)
-	return m
-}
-
-func (m *MockLogger) Err(err error) Logger {
-	m.Called(err)
-	return m
-}
-
 func (m *MockLogger) Info(args ...interface{}) {
 	m.Called(args...)
 }
@@ -185,13 +175,6 @@ func TestIterator(t *testing.T) {
 			return errors.New("some error")
 		}
 
-		// Mock the logger
-		mockLogger := &MockLogger{}
-		mockLogger.On("Err", mock.Anything)
-		mockLogger.On("Msgf", mock.Anything)
-
-		it.logger = mockLogger
-
 		err = it.loadBatch(context.Background())
 
 		is.True(err != nil)
@@ -235,13 +218,6 @@ func TestIterator(t *testing.T) {
 			return nil
 		}
 
-		// Mock the logger
-		mockLogger := &MockLogger{}
-		mockLogger.On("Err", mock.Anything).Times(maxRetries)
-		mockLogger.On("Msgf", mock.Anything).Times(maxRetries)
-
-		it.logger = mockLogger
-
 		err = it.loadBatch(context.Background())
 
 		is.NoErr(err)
@@ -250,7 +226,5 @@ func TestIterator(t *testing.T) {
 		is.Equal(mockResponse.Vessels.PageInfo.EndCursor, it.cursor)
 		is.Equal([]byte(mockResponse.Vessels.PageInfo.EndCursor), it.position)
 		is.Equal(retries, maxRetries) // Check if the retries have been exhausted
-
-		mockLogger.AssertExpectations(t)
 	})
 }
