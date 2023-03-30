@@ -1,4 +1,4 @@
-# Conduit Connector for <SPIRE-AIS GraphQL API>
+# Conduit Connector for SPIRE-AIS GraphQL API
 [Conduit](https://conduit.io) for [Spire Martime 2.0 API](https://documentation.spire.com/maritime-2-0/).
 
 ## How to build?
