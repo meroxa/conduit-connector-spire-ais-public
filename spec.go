@@ -20,7 +20,7 @@ import (
 
 // version is set during the build process with ldflags (see Makefile).
 // Default version matches default from runtime/debug.
-var version = "v0.1.0"
+var version = "(devel)"
 
 // Specification returns the connector's specification.
 func Specification() sdk.Specification {
@@ -28,7 +28,7 @@ func Specification() sdk.Specification {
 		Name:        "spire-ais",
 		Summary:     "A source connector for getting data from the spire-ais GraphQL API",
 		Description: "This connector should connect to the Spire-AIS GraphQL API using a Bearer Token.  It should allow sending a query to the API to fetch new data",
-		Version:     version,
+		Version:     "v0.1.0",
 		Author:      "Meroxa, Inc.",
 	}
 }
