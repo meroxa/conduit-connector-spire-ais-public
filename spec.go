@@ -20,7 +20,7 @@ import (
 
 // version is set during the build process with ldflags (see Makefile).
 // Default version matches default from runtime/debug.
-var version = "(devel)"
+var version = "v0.1.0"
 
 // Specification returns the connector's specification.
 func Specification() sdk.Specification {
