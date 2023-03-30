@@ -137,7 +137,6 @@ func (it *Iterator) loadBatch(ctx context.Context) error {
 }
 
 func wrapAsRecord(in Node, endCursor sdk.Position) (sdk.Record, error) {
-	sdk.Logger(context.Background()).Debug().Msgf("record: %+v", in)
 	updateTimestamp, err := time.Parse(time.RFC3339, in.UpdateTimestamp)
 	if err != nil {
 		sdk.Logger(context.Background()).Err(err).Msg("%w")
