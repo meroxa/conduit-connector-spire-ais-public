@@ -1,3 +1,17 @@
+// Copyright © 2023 Meroxa, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package ais
 
 //go:generate paramgen -output=paramgen_src.go SourceConfig
@@ -7,20 +21,38 @@ import (
 	"fmt"
 
 	sdk "github.com/conduitio/conduit-connector-sdk"
+	"github.com/machinebox/graphql"
 )
+
+type IteratorCreator interface {
+	NewIterator(client GraphQLClient, token string, query string, batchSize int, p sdk.Position) (*Iterator, error)
+}
+
+type SourceIteratorCreator struct {
+}
+
+func (ic SourceIteratorCreator) NewIterator(client GraphQLClient, token string, query string, batchSize int, p sdk.Position) (*Iterator, error) {
+	return NewIterator(client, token, query, batchSize, p)
+}
 
 type Source struct {
 	sdk.UnimplementedSource
 
-	config           SourceConfig
-	lastPositionRead sdk.Position //nolint:unused // this is just an example
+	config               SourceConfig
+	iterator             *Iterator
+	iteratorCreator      IteratorCreator
+	startQueryFromCursor bool
 }
 
 type SourceConfig struct {
 	// Config includes parameters that are the same in the source and destination.
 	Config
-	// SourceConfigParam is named foo and must be provided by the user.
-	SourceConfigParam string `json:"foo" validate:"required"`
+
+	// Query is the GraphQL Query to use when pulling data from the Spire API.
+	Query string `json:"query"`
+
+	// BatchSize is the quantity of vessels to retrieve per API call.
+	BatchSize int `json:"batch_size" validate:"required" default:"100"`
 }
 
 func NewSource() sdk.Source {
@@ -44,11 +76,17 @@ func (s *Source) Configure(ctx context.Context, cfg map[string]string) error {
 	// before calling Configure. If you need to do more complex validations you
 	// can do them manually here.
 
-	sdk.Logger(ctx).Info().Msg("Configuring Source...")
+	sdk.Logger(ctx).Debug().Msg("Configuring Source connector...")
 	err := sdk.Util.ParseConfig(cfg, &s.config)
 	if err != nil {
 		return fmt.Errorf("invalid config: %w", err)
 	}
+
+	if s.config.Query == "" {
+		s.config.Query = vesselQuery()
+	}
+
+	s.iteratorCreator = SourceIteratorCreator{}
 	return nil
 }
 
@@ -59,7 +97,19 @@ func (s *Source) Open(ctx context.Context, pos sdk.Position) error {
 	// last record that was successfully processed, Source should therefore
 	// start producing records after this position. The context passed to Open
 	// will be cancelled once the plugin receives a stop signal from Conduit.
-	return nil
+
+	sdk.Logger(ctx).Debug().Msg("Opening Source connector...")
+	// Create new GraphQL client using URL from config
+	c := graphql.NewClient(s.config.APIURL)
+	it, err := s.iteratorCreator.NewIterator(c, s.config.Token, s.config.Query, s.config.BatchSize, pos)
+	s.iterator = it
+
+	// If there is a value in the Iterator's position during the Open function, then that means that the pipeline was running previously and likely errored out or shut down
+	// This sets a flag to start querying from the iterator's last successful cursor position
+	if s.iterator.position != nil {
+		s.startQueryFromCursor = true
+	}
+	return err
 }
 
 func (s *Source) Read(ctx context.Context) (sdk.Record, error) {
@@ -77,7 +127,17 @@ func (s *Source) Read(ctx context.Context) (sdk.Record, error) {
 	// After Read returns an error the function won't be called again (except if
 	// the error is ErrBackoffRetry, as mentioned above).
 	// Read can be called concurrently with Ack.
-	return sdk.Record{}, nil
+
+	// no more records, backoff
+	if !s.iterator.HasNext(ctx) && s.iterator.position != nil && !s.startQueryFromCursor {
+		return sdk.Record{}, sdk.ErrBackoffRetry
+	}
+
+	record, err := s.iterator.Next(ctx)
+	if err != nil {
+		return sdk.Record{}, fmt.Errorf("error reading next record: %w", err)
+	}
+	return record, nil
 }
 
 func (s *Source) Ack(ctx context.Context, position sdk.Position) error {
@@ -87,6 +147,7 @@ func (s *Source) Ack(ctx context.Context, position sdk.Position) error {
 	// outstanding acks that need to be delivered. When Teardown is called it is
 	// guaranteed there won't be any more calls to Ack.
 	// Ack can be called concurrently with Read.
+	sdk.Logger(ctx).Debug().Str("position", string(position)).Msg("got ack")
 	return nil
 }
 
@@ -94,5 +155,6 @@ func (s *Source) Teardown(ctx context.Context) error {
 	// Teardown signals to the plugin that there will be no more calls to any
 	// other function. After Teardown returns, the plugin should be ready for a
 	// graceful shutdown.
+
 	return nil
 }

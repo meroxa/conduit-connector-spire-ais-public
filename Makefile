@@ -1,4 +1,4 @@
-.PHONY: build test test-integration generate install-paramgen
+.PHONY: build test test-integration generate install-paramgen lint
 
 VERSION=$(shell git describe --tags --dirty --always)
 
@@ -20,3 +20,6 @@ generate:
 
 install-paramgen:
 	go install github.com/conduitio/conduit-connector-sdk/cmd/paramgen@latest
+
+lint:
+	golangci-lint run

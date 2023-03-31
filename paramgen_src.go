@@ -9,17 +9,27 @@ import (
 
 func (SourceConfig) Parameters() map[string]sdk.Parameter {
 	return map[string]sdk.Parameter{
-		"foo": {
-			Default:     "",
-			Description: "foo is named foo and must be provided by the user.",
+		"api_url": {
+			Default:     "https://api.spire.com/graphql",
+			Description: "api_url is the Spire API URL to use for accessing the Spire GraphQL API.",
 			Type:        sdk.ParameterTypeString,
-			Validations: []sdk.Validation{
-				sdk.ValidationRequired{},
-			},
+			Validations: []sdk.Validation{},
 		},
-		"global_config_param_name": {
+		"batch_size": {
+			Default:     "100",
+			Description: "batch_size is the quantity of vessels to retrieve per API call.",
+			Type:        sdk.ParameterTypeInt,
+			Validations: []sdk.Validation{},
+		},
+		"query": {
 			Default:     "",
-			Description: "global_config_param_name is named global_config_param_name and needs to be provided by the user.",
+			Description: "query is the GraphQL query to use when pulling data from the Spire API.",
+			Type:        sdk.ParameterTypeString,
+			Validations: []sdk.Validation{},
+		},
+		"token": {
+			Default:     "",
+			Description: "token is the access token to use when accessing the Spire GraphQL API.",
 			Type:        sdk.ParameterTypeString,
 			Validations: []sdk.Validation{
 				sdk.ValidationRequired{},
