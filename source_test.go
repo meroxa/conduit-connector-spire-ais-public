@@ -68,10 +68,10 @@ func TestSource(t *testing.T) {
 	t.Run("Open", func(t *testing.T) {
 		source := NewSource()
 		cfg := map[string]string{
-			"apiUrl":     "https://api.example.com/graphql",
-			"token":      "test-token",
-			"query":      "test-query",
-			"batch_size": "100",
+			"apiUrl":    "https://api.example.com/graphql",
+			"token":     "test-token",
+			"query":     "test-query",
+			"batchSize": "100",
 		}
 
 		err := source.Configure(context.Background(), cfg)

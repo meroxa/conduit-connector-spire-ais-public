@@ -16,14 +16,8 @@ func (SourceConfig) Parameters() map[string]sdk.Parameter {
 			Validations: []sdk.Validation{},
 		},
 		"batchSize": {
-			Default:     "",
-			Description: "batchSize is the quantity of vessels to retrieve per API call.",
-			Type:        sdk.ParameterTypeString,
-			Validations: []sdk.Validation{},
-		},
-		"batch_size": {
 			Default:     "100",
-			Description: "batch_size is the quantity of vessels to retrieve per API call.",
+			Description: "batchSize is the quantity of vessels to retrieve per API call.",
 			Type:        sdk.ParameterTypeInt,
 			Validations: []sdk.Validation{
 				sdk.ValidationRequired{},
