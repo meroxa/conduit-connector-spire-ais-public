@@ -24,7 +24,7 @@ func Specification() sdk.Specification {
 		Name:        "spire-ais",
 		Summary:     "A source connector for getting data from the spire-ais GraphQL API",
 		Description: "This connector should connect to the Spire-AIS GraphQL API using a Bearer Token.  It should allow sending a query to the API to fetch new data",
-		Version:     "v0.1.0",
+		Version:     "v0.2.0",
 		Author:      "Meroxa, Inc.",
 	}
 }
