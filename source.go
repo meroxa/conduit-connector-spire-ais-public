@@ -52,7 +52,7 @@ type SourceConfig struct {
 	Query string `json:"query"`
 
 	// BatchSize is the quantity of vessels to retrieve per API call.
-	BatchSize int `json:"batch_size" validate:"required" default:"100"`
+	BatchSize int `json:"batchSize" validate:"required" default:"100"`
 }
 
 func NewSource() sdk.Source {
