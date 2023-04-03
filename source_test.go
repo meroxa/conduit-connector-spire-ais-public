@@ -41,19 +41,19 @@ func TestSource(t *testing.T) {
 
 		is := is.New(t)
 		is.True(params != nil)
-		is.Equal(params["api_url"].Default, "https://api.spire.com/graphql")
+		is.Equal(params["apiUrl"].Default, "https://api.spire.com/graphql")
 		is.Equal(params["query"].Default, "")
 		is.Equal(params["token"].Default, "")
-		is.Equal(params["batch_size"].Default, "100")
+		is.Equal(params["batchSize"].Default, "100")
 	})
 
 	t.Run("Configure", func(t *testing.T) {
 		source := NewSource()
 		cfg := map[string]string{
-			"api_url":    "https://api.example.com/graphql",
-			"token":      "test-token",
-			"query":      "test-query",
-			"batch_size": "100",
+			"apiUrl":    "https://api.example.com/graphql",
+			"token":     "test-token",
+			"query":     "test-query",
+			"batchSize": "100",
 		}
 
 		err := source.Configure(context.Background(), cfg)
@@ -68,7 +68,7 @@ func TestSource(t *testing.T) {
 	t.Run("Open", func(t *testing.T) {
 		source := NewSource()
 		cfg := map[string]string{
-			"api_url":    "https://api.example.com/graphql",
+			"apiUrl":     "https://api.example.com/graphql",
 			"token":      "test-token",
 			"query":      "test-query",
 			"batch_size": "100",

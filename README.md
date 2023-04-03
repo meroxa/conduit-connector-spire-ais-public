@@ -17,10 +17,10 @@ A Spire API token is required to use this connector
 
 | name                  | description                           | required | default value |
 |-----------------------|---------------------------------------|----------|---------------|
-| `api_url` | Spire API URL to use for accessing the Maritime 2.0 GraphQL API. | false     | https://api.spire.com/graphql          |
+| `apiUrl` | Spire API URL to use for accessing the Maritime 2.0 GraphQL API. | false     | https://api.spire.com/graphql          |
 | `token` | Access token to use when accessing the Spire GraphQL API. | true     |           |
 | `query` | The query to send to the Spire GraphQL API. | false     |     [Default graphQL Query is in `query.go`](query.go)      |
-| `batch_size` | The maximum number of results to retrieve from the Spire GraphQL API for each request. | false     |     100      |
+| `batchSize` | The maximum number of results to retrieve from the Spire GraphQL API for each request. | false     |     100      |
 
 ## Known Issues & Limitations
 * There's currently no pre-flight validation on the GraphQL query

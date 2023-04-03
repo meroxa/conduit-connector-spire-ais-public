@@ -9,9 +9,15 @@ import (
 
 func (SourceConfig) Parameters() map[string]sdk.Parameter {
 	return map[string]sdk.Parameter{
-		"api_url": {
+		"apiUrl": {
 			Default:     "https://api.spire.com/graphql",
-			Description: "api_url is the Spire API URL to use for accessing the Spire GraphQL API.",
+			Description: "apiUrl is the Spire API URL to use for accessing the Spire GraphQL API.",
+			Type:        sdk.ParameterTypeString,
+			Validations: []sdk.Validation{},
+		},
+		"batchSize": {
+			Default:     "",
+			Description: "batchSize is the quantity of vessels to retrieve per API call.",
 			Type:        sdk.ParameterTypeString,
 			Validations: []sdk.Validation{},
 		},
@@ -19,7 +25,9 @@ func (SourceConfig) Parameters() map[string]sdk.Parameter {
 			Default:     "100",
 			Description: "batch_size is the quantity of vessels to retrieve per API call.",
 			Type:        sdk.ParameterTypeInt,
-			Validations: []sdk.Validation{},
+			Validations: []sdk.Validation{
+				sdk.ValidationRequired{},
+			},
 		},
 		"query": {
 			Default:     "",

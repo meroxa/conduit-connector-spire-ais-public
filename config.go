@@ -19,14 +19,11 @@ package ais
 // file.
 type Config struct {
 	// APIURL is the Spire API URL to use for accessing the Spire GraphQL API.
-	APIURL string `json:"api_url" default:"https://api.spire.com/graphql"`
+	APIURL string `json:"apiUrl" default:"https://api.spire.com/graphql"`
 
 	// Token is the access token to use when accessing the Spire GraphQL API.
 	Token string `json:"token" validate:"required"`
 
 	// BatchSize is the quantity of vessels to retrieve per API call.
-	BatchSize string `json:"batch_size"`
-
-	// query is the GraphQL query to use when pulling data from the Spire API.
-	Query string `json:"query"`
+	BatchSize string `json:"batchSize"`
 }
