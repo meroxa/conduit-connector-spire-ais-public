@@ -151,5 +151,8 @@ func wrapAsRecord(in Node, endCursor sdk.Position) (sdk.Record, error) {
 		return sdk.Record{}, fmt.Errorf("error occurred marshalling JSON: %w", err)
 	}
 
-	return sdk.Util.Source.NewRecordCreate(endCursor, sdkMetadata, nil, sdk.RawData(b)), nil
+	// convert string to bytes
+	idBytes := []byte(in.ID)
+
+	return sdk.Util.Source.NewRecordCreate(endCursor, sdkMetadata, sdk.RawData(idBytes), sdk.RawData(b)), nil
 }
