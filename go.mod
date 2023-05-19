@@ -6,7 +6,7 @@ require (
 	github.com/conduitio/conduit-connector-sdk v0.6.0
 	github.com/machinebox/graphql v0.2.2
 	github.com/matryer/is v1.4.1
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.3
 )
 
 require (
