@@ -23,4 +23,7 @@ type Config struct {
 
 	// Token is the access token to use when accessing the Spire GraphQL API.
 	Token string `json:"token" validate:"required"`
+
+	// batchSize is the quantity of vessels to retrieve per Spire GraphQL API call.
+	BatchSize string `json:"batchSize" default:"100"`
 }
