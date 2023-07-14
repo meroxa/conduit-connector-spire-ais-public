@@ -128,6 +128,8 @@ func (it *Iterator) loadBatch(ctx context.Context) error {
 		}
 	}
 
+	fmt.Printf("GraphQL Response: %+v", Response)
+
 	it.currentBatch = Response.Vessels.Nodes
 	it.hasNext = Response.Vessels.PageInfo.HasNextPage
 	it.cursor = Response.Vessels.PageInfo.EndCursor
