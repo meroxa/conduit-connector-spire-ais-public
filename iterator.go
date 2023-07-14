@@ -36,23 +36,25 @@ type GraphQLClient interface {
 
 // Updated Iterator struct with logger and client dependencies
 type Iterator struct {
-	query        string
-	token        string
-	batchSize    int
-	cursor       string
-	hasNext      bool
-	position     []byte
-	client       GraphQLClient
-	currentBatch []Node
+	query          string
+	token          string
+	batchSize      int
+	cursor         string
+	hasNext        bool
+	position       []byte
+	client         GraphQLClient
+	currentBatch   []Node
+	nodesProcessed int
 }
 
 func NewIterator(client GraphQLClient, token string, query string, batchSize int, p sdk.Position) (*Iterator, error) {
 	return &Iterator{
-		token:     token,
-		query:     query,
-		batchSize: batchSize,
-		client:    client,
-		position:  p,
+		token:          token,
+		query:          query,
+		batchSize:      batchSize,
+		client:         client,
+		position:       p,
+		nodesProcessed: 0,
 	}, nil
 }
 
@@ -90,7 +92,7 @@ func (it *Iterator) Next(ctx context.Context) (sdk.Record, error) {
 		}
 		out, it.currentBatch = it.currentBatch[0], it.currentBatch[1:]
 	}
-
+	it.nodesProcessed++
 	return wrapAsRecord(out, it.position)
 }
 
