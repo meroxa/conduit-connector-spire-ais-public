@@ -15,13 +15,19 @@
 package ais
 
 type Vessels struct {
-	PageInfo PageInfo `json:"pageInfo"`
-	Nodes    []Node   `json:"nodes"`
+	PageInfo   PageInfo   `json:"pageInfo"`
+	TotalCount TotalCount `json:"totalCount"`
+	Nodes      []Node     `json:"nodes"`
 }
 
 type PageInfo struct {
 	HasNextPage bool   `json:"hasNextPage"`
 	EndCursor   string `json:"endCursor"`
+}
+
+type TotalCount struct {
+	Value    int    `json:"value"`
+	Relation string `json:"string"`
 }
 
 type Node struct {

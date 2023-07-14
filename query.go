@@ -22,6 +22,10 @@ func vesselQuery() string {
 				 hasNextPage
 				 endCursor
 			   }
+			   totalCount { #recordset details
+				value
+				relation
+			   }
 			   nodes {
 				 id
 				 updateTimestamp

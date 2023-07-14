@@ -132,6 +132,7 @@ func (it *Iterator) loadBatch(ctx context.Context) error {
 	sdk.Logger(context.Background()).Debug().Msgf("GraphQL Response: %+v", Response)
 	// sdk.Logger(ctx).Debug().Str("position", string(position)).Msg("got ack")
 
+	sdk.Logger(context.Background()).Debug().Msgf("GraphQL Response: %+v", Response.Vessels.TotalCount.Value)
 	it.currentBatch = Response.Vessels.Nodes
 	it.hasNext = Response.Vessels.PageInfo.HasNextPage
 	it.cursor = Response.Vessels.PageInfo.EndCursor
