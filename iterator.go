@@ -131,10 +131,10 @@ func (it *Iterator) loadBatch(ctx context.Context) error {
 	}
 
 	// fmt.Printf("GraphQL Response: %+v", Response)
-	sdk.Logger(context.Background()).Debug().Msgf("GraphQL Response length: %+v", len(Response.Vessels.Nodes))
+	sdk.Logger(context.Background()).Info().Msgf("GraphQL Response length: %+v", len(Response.Vessels.Nodes))
 	// sdk.Logger(ctx).Debug().Str("position", string(position)).Msg("got ack")
 
-	sdk.Logger(context.Background()).Debug().Msgf("GraphQL Response: %d", Response.Vessels.TotalCount.Value)
+	sdk.Logger(context.Background()).Info().Msgf("GraphQL Response: %d", Response.Vessels.TotalCount.Value)
 	it.currentBatch = Response.Vessels.Nodes
 	it.hasNext = Response.Vessels.PageInfo.HasNextPage
 	it.cursor = Response.Vessels.PageInfo.EndCursor

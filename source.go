@@ -135,7 +135,8 @@ func (s *Source) Read(ctx context.Context) (sdk.Record, error) {
 
 	record, err := s.iterator.Next(ctx)
 	// sdk.Logger(context.Background()).Debug().Msgf("Next record: %+v", record)
-	sdk.Logger(context.Background()).Debug().Msgf("Nodes processed: %d", s.iterator.nodesProcessed)
+	sdk.Logger(context.Background()).Info().Msgf("Nodes processed: %d", s.iterator.nodesProcessed)
+	// record.Key = sdk.Data([]byte(`s.iterator.nodesProcessed`))
 	if err != nil {
 		return sdk.Record{}, fmt.Errorf("error reading next record: %w", err)
 	}
