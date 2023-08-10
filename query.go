@@ -16,8 +16,8 @@ package ais
 
 func vesselQuery() string {
 	return `
-	query ($first: Int!, $after: String){
-	        vessels(first:$first, after:$after) {
+	query ($first: Int!, $after: String, $startTime: DateTime!){
+	        vessels(first:$first, after:$after, lastPositionUpdate: { startTime: $startTime }) {
 				pageInfo {
 				 hasNextPage
 				 endCursor
