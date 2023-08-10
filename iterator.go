@@ -101,8 +101,8 @@ func (it *Iterator) loadBatch(ctx context.Context) error {
 	graphqlRequest := graphql.NewRequest(it.query)
 	graphqlRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %s", it.token))
 	graphqlRequest.Var("first", it.batchSize)
-	currentTimestamp := time.Now().Add(-1 * time.Hour).Format(time.RFC3339)
-	graphqlRequest.Var("startTime", currentTimestamp)
+	// currentTimestamp := time.Now().Add(-1 * time.Hour).Format(time.RFC3339)
+	// graphqlRequest.Var("startTime", currentTimestamp)
 	var Response struct {
 		Vessels Vessels
 	}
