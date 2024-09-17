@@ -72,7 +72,7 @@ func (s *Source) Parameters() config.Parameters {
 
 func (s *Source) Configure(ctx context.Context, cfg config.Config) error {
 	sdk.Logger(ctx).Debug().Msg("Configuring Source connector...")
-	err := sdk.Util.ParseConfig(ctx, cfg, &s.config, s.Parameters())
+	err := sdk.Util.ParseConfig(ctx, cfg, &s.config, NewSource().Parameters())
 	if err != nil {
 		return fmt.Errorf("invalid config: %w", err)
 	}
