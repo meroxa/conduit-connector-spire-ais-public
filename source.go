@@ -20,18 +20,20 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/conduitio/conduit-commons/config"
+	"github.com/conduitio/conduit-commons/opencdc"
 	sdk "github.com/conduitio/conduit-connector-sdk"
 	"github.com/machinebox/graphql"
 )
 
 type IteratorCreator interface {
-	NewIterator(client GraphQLClient, token string, query string, batchSize int, p sdk.Position) (*Iterator, error)
+	NewIterator(client GraphQLClient, token string, query string, batchSize int, p opencdc.Position) (*Iterator, error)
 }
 
 type SourceIteratorCreator struct {
 }
 
-func (ic SourceIteratorCreator) NewIterator(client GraphQLClient, token string, query string, batchSize int, p sdk.Position) (*Iterator, error) {
+func (ic SourceIteratorCreator) NewIterator(client GraphQLClient, token string, query string, batchSize int, p opencdc.Position) (*Iterator, error) {
 	return NewIterator(client, token, query, batchSize, p)
 }
 
@@ -50,34 +52,22 @@ type SourceConfig struct {
 
 	// Query is the GraphQL Query to use when pulling data from the Spire API.
 	Query string `json:"query"`
-
-	// BatchSize is the quantity of vessels to retrieve per API call.
-	BatchSize int `json:"batchSize" validate:"required" default:"100"`
 }
 
 func NewSource() sdk.Source {
-	// Create Source and wrap it in the default middleware.
-	return sdk.SourceWithMiddleware(&Source{})
+	return sdk.SourceWithMiddleware(&Source{
+		config:          SourceConfig{},
+		iteratorCreator: SourceIteratorCreator{},
+	}, sdk.DefaultSourceMiddleware()...)
 }
 
-func (s *Source) Parameters() map[string]sdk.Parameter {
-	// Parameters is a map of named Parameters that describe how to configure
-	// the Source. Parameters can be generated from SourceConfig with paramgen.
+func (s *Source) Parameters() config.Parameters {
 	return s.config.Parameters()
 }
 
-func (s *Source) Configure(ctx context.Context, cfg map[string]string) error {
-	// Configure is the first function to be called in a connector. It provides
-	// the connector with the configuration that can be validated and stored.
-	// In case the configuration is not valid it should return an error.
-	// Testing if your connector can reach the configured data source should be
-	// done in Open, not in Configure.
-	// The SDK will validate the configuration and populate default values
-	// before calling Configure. If you need to do more complex validations you
-	// can do them manually here.
-
+func (s *Source) Configure(ctx context.Context, cfg config.Config) error {
 	sdk.Logger(ctx).Debug().Msg("Configuring Source connector...")
-	err := sdk.Util.ParseConfig(cfg, &s.config)
+	err := sdk.Util.ParseConfig(ctx, cfg, &s.config, s.Parameters())
 	if err != nil {
 		return fmt.Errorf("invalid config: %w", err)
 	}
@@ -86,64 +76,38 @@ func (s *Source) Configure(ctx context.Context, cfg map[string]string) error {
 		s.config.Query = vesselQuery()
 	}
 
-	s.iteratorCreator = SourceIteratorCreator{}
 	return nil
 }
 
-func (s *Source) Open(ctx context.Context, pos sdk.Position) error {
-	// Open is called after Configure to signal the plugin it can prepare to
-	// start producing records. If needed, the plugin should open connections in
-	// this function. The position parameter will contain the position of the
-	// last record that was successfully processed, Source should therefore
-	// start producing records after this position. The context passed to Open
-	// will be cancelled once the plugin receives a stop signal from Conduit.
-
+func (s *Source) Open(ctx context.Context, pos opencdc.Position) error {
 	sdk.Logger(ctx).Debug().Msg("Opening Source connector...")
-	// Create new GraphQL client using URL from config
 	c := graphql.NewClient(s.config.APIURL)
 	it, err := s.iteratorCreator.NewIterator(c, s.config.Token, s.config.Query, s.config.BatchSize, pos)
+	if err != nil {
+		return fmt.Errorf("failed to create iterator: %w", err)
+	}
 	s.iterator = it
 
-	// If there is a value in the Iterator's position during the Open function, then that means that the pipeline was running previously and likely errored out or shut down
-	// This sets a flag to start querying from the iterator's last successful cursor position
 	if s.iterator.position != nil {
 		s.startQueryFromCursor = true
 	}
-	return err
+	return nil
 }
 
-func (s *Source) Read(ctx context.Context) (sdk.Record, error) {
-	// Read returns a new Record and is supposed to block until there is either
-	// a new record or the context gets cancelled. It can also return the error
-	// ErrBackoffRetry to signal to the SDK it should call Read again with a
-	// backoff retry.
-	// If Read receives a cancelled context or the context is cancelled while
-	// Read is running it must stop retrieving new records from the source
-	// system and start returning records that have already been buffered. If
-	// there are no buffered records left Read must return the context error to
-	// signal a graceful stop. If Read returns ErrBackoffRetry while the context
-	// is cancelled it will also signal that there are no records left and Read
-	// won't be called again.
-	// After Read returns an error the function won't be called again (except if
-	// the error is ErrBackoffRetry, as mentioned above).
-	// Read can be called concurrently with Ack.
-
-	// no more records, backoff
+func (s *Source) Read(ctx context.Context) (opencdc.Record, error) {
 	if !s.iterator.HasNext(ctx) && s.iterator.position != nil && !s.startQueryFromCursor {
-		return sdk.Record{}, sdk.ErrBackoffRetry
+		return opencdc.Record{}, sdk.ErrBackoffRetry
 	}
 
 	record, err := s.iterator.Next(ctx)
-	// sdk.Logger(context.Background()).Debug().Msgf("Next record: %+v", record)
 	sdk.Logger(context.Background()).Info().Msgf("Nodes processed: %d", s.iterator.nodesProcessed)
-	// record.Key = sdk.Data([]byte(`s.iterator.nodesProcessed`))
 	if err != nil {
-		return sdk.Record{}, fmt.Errorf("error reading next record: %w", err)
+		return opencdc.Record{}, fmt.Errorf("error reading next record: %w", err)
 	}
 	return record, nil
 }
 
-func (s *Source) Ack(ctx context.Context, position sdk.Position) error {
+func (s *Source) Ack(ctx context.Context, position opencdc.Position) error {
 	// Ack signals to the implementation that the record with the supplied
 	// position was successfully processed. This method might be called after
 	// the context of Read is already cancelled, since there might be
@@ -160,4 +124,8 @@ func (s *Source) Teardown(ctx context.Context) error {
 	// graceful shutdown.
 
 	return nil
+}
+
+func (s *Source) GetConfig() SourceConfig {
+	return s.config
 }

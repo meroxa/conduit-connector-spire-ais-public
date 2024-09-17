@@ -12,19 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ais
+//go:build tools
+
+package main
 
 import (
-	sdk "github.com/conduitio/conduit-connector-sdk"
+	_ "github.com/conduitio/conduit-commons/paramgen"
+	_ "github.com/golangci/golangci-lint/cmd/golangci-lint"
+	_ "mvdan.cc/gofumpt"
 )
-
-// Specification returns the connector's specification.
-func Specification() sdk.Specification {
-	return sdk.Specification{
-		Name:        "spire-ais",
-		Summary:     "A source connector for getting data from the spire-ais GraphQL API",
-		Description: "This connector should connect to the Spire-AIS GraphQL API using a Bearer Token.  It should allow sending a query to the API to fetch new data",
-		Version:     "v0.3.0",
-		Author:      "Meroxa, Inc.",
-	}
-}

@@ -20,13 +20,14 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/conduitio/conduit-commons/opencdc"
 	sdk "github.com/conduitio/conduit-connector-sdk"
 	"github.com/machinebox/graphql"
 )
 
 type IteratorInterface interface {
 	HasNext(ctx context.Context) bool
-	Next(ctx context.Context) (sdk.Record, error)
+	Next(ctx context.Context) (opencdc.Record, error)
 }
 
 // Add GraphQLClient interface for dependency injection
@@ -47,7 +48,7 @@ type Iterator struct {
 	nodesProcessed int
 }
 
-func NewIterator(client GraphQLClient, token string, query string, batchSize int, p sdk.Position) (*Iterator, error) {
+func NewIterator(client GraphQLClient, token string, query string, batchSize int, p opencdc.Position) (*Iterator, error) {
 	return &Iterator{
 		token:          token,
 		query:          query,
@@ -79,7 +80,7 @@ func (it *Iterator) HasNext(ctx context.Context) bool {
 	return false
 }
 
-func (it *Iterator) Next(ctx context.Context) (sdk.Record, error) {
+func (it *Iterator) Next(ctx context.Context) (opencdc.Record, error) {
 	// return next message from cached batch
 	var out Node
 	if len(it.currentBatch) > 0 {
@@ -88,7 +89,7 @@ func (it *Iterator) Next(ctx context.Context) (sdk.Record, error) {
 		err := it.loadBatch(ctx)
 		if err != nil {
 			sdk.Logger(ctx).Err(err).Msg("loadBatch returned error")
-			return sdk.Record{}, fmt.Errorf("loadBatch returned error: %w", err)
+			return opencdc.Record{}, fmt.Errorf("loadBatch returned error: %w", err)
 		}
 		out, it.currentBatch = it.currentBatch[0], it.currentBatch[1:]
 	}
@@ -145,23 +146,23 @@ func (it *Iterator) loadBatch(ctx context.Context) error {
 	return nil
 }
 
-func wrapAsRecord(in Node, endCursor sdk.Position) (sdk.Record, error) {
+func wrapAsRecord(in Node, endCursor opencdc.Position) (opencdc.Record, error) {
 	updateTimestamp, err := time.Parse(time.RFC3339, in.UpdateTimestamp)
 	if err != nil {
 		sdk.Logger(context.Background()).Err(err).Msg("%w")
-		return sdk.Record{}, fmt.Errorf("error occurred while wrapping results as a Conduit Record: %w", err)
+		return opencdc.Record{}, fmt.Errorf("error occurred while wrapping results as a Conduit Record: %w", err)
 	}
 
-	sdkMetadata := make(sdk.Metadata)
+	sdkMetadata := make(opencdc.Metadata)
 	sdkMetadata.SetCreatedAt(updateTimestamp)
 
 	b, err := json.Marshal(in)
 	if err != nil {
-		return sdk.Record{}, fmt.Errorf("error occurred marshalling JSON: %w", err)
+		return opencdc.Record{}, fmt.Errorf("error occurred marshalling JSON: %w", err)
 	}
 
 	// convert string to bytes
 	idBytes := []byte(in.ID)
 
-	return sdk.Util.Source.NewRecordCreate(endCursor, sdkMetadata, sdk.RawData(idBytes), sdk.RawData(b)), nil
+	return sdk.Util.Source.NewRecordCreate(endCursor, sdkMetadata, opencdc.RawData(idBytes), opencdc.RawData(b)), nil
 }

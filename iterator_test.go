@@ -19,7 +19,7 @@ import (
 	"errors"
 	"testing"
 
-	sdk "github.com/conduitio/conduit-connector-sdk"
+	"github.com/conduitio/conduit-commons/opencdc"
 	"github.com/machinebox/graphql"
 	"github.com/matryer/is"
 	"github.com/stretchr/testify/mock"
@@ -48,7 +48,7 @@ func TestIterator(t *testing.T) {
 		token := "test-token"
 		query := "test-query"
 		batchSize := 100
-		position := sdk.Position("test-position")
+		position := opencdc.Position("test-position")
 
 		it, err := NewIterator(client, token, query, batchSize, position)
 
@@ -65,7 +65,7 @@ func TestIterator(t *testing.T) {
 		token := "test-token"
 		query := "test-query"
 		batchSize := 100
-		position := sdk.Position("test-position")
+		position := opencdc.Position("test-position")
 
 		it, err := NewIterator(client, token, query, batchSize, position)
 		is.NoErr(err)
@@ -105,7 +105,7 @@ func TestIterator(t *testing.T) {
 		token := "test-token"
 		query := "test-query"
 		batchSize := 100
-		position := sdk.Position("test-position")
+		position := opencdc.Position("test-position")
 
 		it, err := NewIterator(client, token, query, batchSize, position)
 		is.NoErr(err)
@@ -127,7 +127,7 @@ func TestIterator(t *testing.T) {
 		token := "test-token"
 		query := "test-query"
 		batchSize := 100
-		position := sdk.Position("test-position")
+		position := opencdc.Position("test-position")
 
 		it, err := NewIterator(client, token, query, batchSize, position)
 		is.NoErr(err)
@@ -166,7 +166,7 @@ func TestIterator(t *testing.T) {
 		token := "test-token"
 		query := "test-query"
 		batchSize := 100
-		position := sdk.Position("test-position")
+		position := opencdc.Position("test-position")
 
 		it, err := NewIterator(client, token, query, batchSize, position)
 		is.NoErr(err)
@@ -187,7 +187,7 @@ func TestIterator(t *testing.T) {
 		token := "test-token"
 		query := "test-query"
 		batchSize := 100
-		position := sdk.Position("test-position")
+		position := opencdc.Position("test-position")
 
 		it, err := NewIterator(client, token, query, batchSize, position)
 		is.NoErr(err)

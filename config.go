@@ -25,5 +25,5 @@ type Config struct {
 	Token string `json:"token" validate:"required"`
 
 	// batchSize is the quantity of vessels to retrieve per Spire GraphQL API call.
-	BatchSize string `json:"batchSize" default:"100"`
+	BatchSize int `json:"batchSize" default:"100"`
 }
