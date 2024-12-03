@@ -10,7 +10,7 @@ require (
 	github.com/golangci/golangci-lint v1.61.0
 	github.com/machinebox/graphql v0.2.2
 	github.com/matryer/is v1.4.1
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	mvdan.cc/gofumpt v0.7.0
 )
 
