@@ -7,7 +7,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - "-s -w -X 'github.com/meroxa/conduit-connector-spire-ais.version={{ .Tag }}'"
+      - "-s -w -X 'github.com/meroxa/conduit-connector-spire-ais-public.version={{ .Tag }}'"
 checksum:
   name_template: checksums.txt
 archives:
@@ -23,8 +23,8 @@ changelog:
   use: github
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
-      - '^go.mod:'
-      - '^.github:'
+      - "^docs:"
+      - "^test:"
+      - "^go.mod:"
+      - "^.github:"
       - Merge branch

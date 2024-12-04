@@ -1,7 +1,8 @@
-module github.com/meroxa/conduit-connector-spire-ais
+module github.com/meroxa/conduit-connector-spire-ais-public
 
-go 1.22.5
-toolchain go1.23.1
+go 1.23
+
+toolchain go1.23.3
 
 require (
 	github.com/conduitio/conduit-commons v0.5.0
