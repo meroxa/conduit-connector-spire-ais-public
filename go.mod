@@ -7,7 +7,7 @@ toolchain go1.23.3
 require (
 	github.com/conduitio/conduit-commons v0.5.0
 	github.com/conduitio/conduit-connector-sdk v0.10.1
-	github.com/golangci/golangci-lint v1.63.3
+	github.com/golangci/golangci-lint v1.63.4
 	github.com/machinebox/graphql v0.2.2
 	github.com/matryer/is v1.4.1
 	github.com/stretchr/testify v1.10.0
