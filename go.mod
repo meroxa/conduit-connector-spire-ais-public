@@ -1,12 +1,12 @@
 module github.com/meroxa/conduit-connector-spire-ais-public
 
 go 1.23
-toolchain go1.23.3
+toolchain go1.24.1
 
 require (
 	github.com/conduitio/conduit-commons v0.5.1
 	github.com/conduitio/conduit-connector-sdk v0.13.2
-	github.com/golangci/golangci-lint v1.64.7
+	github.com/golangci/golangci-lint v1.64.8
 	github.com/machinebox/graphql v0.2.2
 	github.com/matryer/is v1.4.1
 	github.com/stretchr/testify v1.10.0
