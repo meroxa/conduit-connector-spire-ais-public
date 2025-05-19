@@ -3,7 +3,7 @@ module github.com/meroxa/conduit-connector-spire-ais-public
 go 1.24.2
 
 require (
-	github.com/conduitio/conduit-commons v0.5.3
+	github.com/conduitio/conduit-commons v0.5.4
 	github.com/conduitio/conduit-connector-sdk v0.13.4
 	github.com/golangci/golangci-lint v1.64.8
 	github.com/machinebox/graphql v0.2.2
