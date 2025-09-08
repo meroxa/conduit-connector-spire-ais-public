@@ -9,7 +9,7 @@ require (
 	github.com/machinebox/graphql v0.2.2
 	github.com/matryer/is v1.4.1
 	github.com/stretchr/testify v1.11.1
-	mvdan.cc/gofumpt v0.9.0
+	mvdan.cc/gofumpt v0.9.1
 )
 
 require (
